@@ -1,41 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import Calendar
+import json
 from datetime import datetime
 
-# Данные с историческими датами
-events = [
-    {
-        "task": "Основание Санкт-Петербурга",
-        "year": 1703,
-        "month": 5,
-        "day": 27
-    },
-    {
-        "task": "Начало Великой Отечественной войны",
-        "year": 1941,
-        "month": 6,
-        "day": 22
-    },
-    {
-        "task": "Новый 2025 год",
-        "year": 2025,
-        "month": 1,
-        "day": 1
-    },
-    {
-        "task": "День Защитника Отечества",
-        "year": 2027,
-        "month": 2,
-        "day": 23
-    },
-    {
-        "task": "День Победы",
-        "year": 2027,
-        "month": 5,
-        "day": 9
-    }
-]
+def load_events():
+    """Загружает события из JSON‑файла."""
+    try:
+        with open('events.json', 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
 
 def show_selected_date():
     """Отображает выбранную дату из календаря."""
@@ -43,8 +18,14 @@ def show_selected_date():
     result_label.config(text=f"Выбранная дата: {selected_date}")
 
 def display_events():
-    """Отображает список исторических событий."""
+    """Отображает список исторических событий из JSON‑файла."""
     events_text.delete(1.0, tk.END)  # Очищаем текстовое поле
+
+    events = load_events()
+    if not events:
+        events_text.insert(tk.END, "Ошибка: файл events.json не найден или пуст.\n")
+        return
+
     events_text.insert(tk.END, "Список исторических событий:\n\n")
     for event in events:
         date_str = f"{event['day']:02d}.{event['month']:02d}.{event['year']}"
@@ -59,9 +40,9 @@ root.geometry("600x500")
 cal = Calendar(
     root,
     selectmode='day',
-    year=2024,
-    month=5,
-    day=23,
+    year=datetime.now().year,
+    month=datetime.now().month,
+    day=datetime.now().day,
     date_pattern='dd.mm.yyyy'
 )
 cal.pack(pady=10)
@@ -87,4 +68,3 @@ display_events()
 
 # Запуск главного цикла
 root.mainloop()
-
